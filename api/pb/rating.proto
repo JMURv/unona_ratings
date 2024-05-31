@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "github.com/JMURv/unona/ratings/api/pb/rating";
+import "google/protobuf/timestamp.proto";
+
+message Empty {}
+
+service RatingService {
+  rpc GetUserRating (GetUserRatingRequest) returns (Rating) {}
+  rpc CreateReport (CreateReportRequest) returns (Rating) {}
+  rpc UpdateReport (UpdateReportRequest) returns (Rating) {}
+  rpc DeleteReport (DeleteReportRequest) returns (Empty) {}
+}
+
+message Rating {
+  uint32 rating_id = 1;
+  string user_uuid = 2;
+  uint32 rating = 3;
+  string text = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message GetUserRatingRequest {
+  string user_uuid = 1;
+}
+
+message CreateReportRequest {
+  string user_uuid = 1;
+  uint32 rating = 2;
+  string text = 3;
+}
+
+message UpdateReportRequest {
+  uint32 rating_id = 1;
+  uint32 rating = 2;
+  string text = 3;
+}
+
+message DeleteReportRequest {
+  uint32 rating_id = 1;
+}

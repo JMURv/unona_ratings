@@ -1,0 +1,35 @@
+server:
+  mode: "dev"
+
+port: 50080
+serviceName: "ratings"
+
+email:
+  server: "smtp.gmail.com"
+  port: 587
+  user: "unona.tech@gmail.com"
+  pass: "cghmcvxcgkaunvft"
+  admin: "jmurvz@gmail.com"
+
+db:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "794613825Zx!"
+  database: "ratings_db"
+
+redis:
+  addr: "localhost:6379"
+  pass: ""
+
+kafka:
+  addrs: [ "localhost:9092" ]
+  notificationTopic: "notifications"
+
+jaeger:
+  sampler:
+    type: "const"
+    param: 1
+  reporter:
+    LogSpans: true
+    LocalAgentHostPort: "localhost:6831"
