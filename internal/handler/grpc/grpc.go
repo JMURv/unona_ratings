@@ -22,7 +22,7 @@ func New(ctrl *controller.Controller) *Handler {
 	return &Handler{ctrl: ctrl}
 }
 
-func (h *Handler) GetUserRating(ctx context.Context, req *pb.GetUserRatingRequest) (*pb.Rating, error) {
+func (h *Handler) GetUserRating(ctx context.Context, req *pb.GetUserRatingRequest) (*pb.GetUserRatingResponse, error) {
 	statusCode := codes.OK
 	start := time.Now()
 
@@ -43,7 +43,7 @@ func (h *Handler) GetUserRating(ctx context.Context, req *pb.GetUserRatingReques
 		span.SetTag("error", true)
 		return nil, status.Errorf(statusCode, err.Error())
 	} else {
-		return model.RatingToProto(r), nil
+		return &pb.GetUserRatingResponse{Rating: float64(r)}, nil
 	}
 }
 

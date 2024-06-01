@@ -8,7 +8,7 @@ import "google/protobuf/timestamp.proto";
 message Empty {}
 
 service RatingService {
-  rpc GetUserRating (GetUserRatingRequest) returns (Rating) {}
+  rpc GetUserRating (GetUserRatingRequest) returns (GetUserRatingResponse) {}
   rpc CreateReport (CreateReportRequest) returns (Rating) {}
   rpc UpdateReport (UpdateReportRequest) returns (Rating) {}
   rpc DeleteReport (DeleteReportRequest) returns (Empty) {}
@@ -40,4 +40,8 @@ message UpdateReportRequest {
 
 message DeleteReportRequest {
   uint32 rating_id = 1;
+}
+
+message GetUserRatingResponse {
+  double rating = 1;
 }

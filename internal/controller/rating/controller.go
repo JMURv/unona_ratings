@@ -15,12 +15,14 @@ type BrokerRepository interface{}
 
 type CacheRepository interface {
 	Get(ctx context.Context, key string) (*model.Rating, error)
+	GetRatingValue(ctx context.Context, key string) (float32, error)
 	Set(ctx context.Context, t time.Duration, key string, r *model.Rating) error
+	SetRatingValue(ctx context.Context, t time.Duration, key string, r float32) error
 	Delete(ctx context.Context, key string) error
 }
 
 type ratingRepository interface {
-	GetUserRating(ctx context.Context, userUUID uuid.UUID) (*model.Rating, error)
+	GetUserRating(ctx context.Context, userUUID uuid.UUID) (float32, error)
 	CreateReport(ctx context.Context, rating *model.Rating) (*model.Rating, error)
 	UpdateReport(ctx context.Context, ratingID uint, newData *model.Rating) (*model.Rating, error)
 	DeleteReport(ctx context.Context, ratingID uint) error
@@ -40,22 +42,22 @@ func New(repo ratingRepository, cache CacheRepository, broker BrokerRepository) 
 	}
 }
 
-func (c *Controller) GetUserRating(ctx context.Context, userUUID uuid.UUID) (*model.Rating, error) {
+func (c *Controller) GetUserRating(ctx context.Context, userUUID uuid.UUID) (float32, error) {
 	span, _ := opentracing.StartSpanFromContext(ctx, "ratings.GetUserRating.ctrl")
 	ctx = opentracing.ContextWithSpan(ctx, span)
 	defer span.Finish()
 
-	cached, err := c.cache.Get(ctx, fmt.Sprintf(cacheKey, userUUID))
+	cached, err := c.cache.GetRatingValue(ctx, fmt.Sprintf(cacheKey, userUUID))
 	if err == nil {
 		return cached, nil
 	}
 
 	res, err := c.repo.GetUserRating(ctx, userUUID)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	err = c.cache.Set(ctx, time.Hour, fmt.Sprintf(cacheKey, userUUID), res)
+	err = c.cache.SetRatingValue(ctx, time.Hour, fmt.Sprintf(cacheKey, userUUID), res)
 	if err != nil {
 		return res, err
 	}

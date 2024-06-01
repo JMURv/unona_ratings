@@ -29,7 +29,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RatingServiceClient interface {
-	GetUserRating(ctx context.Context, in *GetUserRatingRequest, opts ...grpc.CallOption) (*Rating, error)
+	GetUserRating(ctx context.Context, in *GetUserRatingRequest, opts ...grpc.CallOption) (*GetUserRatingResponse, error)
 	CreateReport(ctx context.Context, in *CreateReportRequest, opts ...grpc.CallOption) (*Rating, error)
 	UpdateReport(ctx context.Context, in *UpdateReportRequest, opts ...grpc.CallOption) (*Rating, error)
 	DeleteReport(ctx context.Context, in *DeleteReportRequest, opts ...grpc.CallOption) (*Empty, error)
@@ -43,8 +43,8 @@ func NewRatingServiceClient(cc grpc.ClientConnInterface) RatingServiceClient {
 	return &ratingServiceClient{cc}
 }
 
-func (c *ratingServiceClient) GetUserRating(ctx context.Context, in *GetUserRatingRequest, opts ...grpc.CallOption) (*Rating, error) {
-	out := new(Rating)
+func (c *ratingServiceClient) GetUserRating(ctx context.Context, in *GetUserRatingRequest, opts ...grpc.CallOption) (*GetUserRatingResponse, error) {
+	out := new(GetUserRatingResponse)
 	err := c.cc.Invoke(ctx, RatingService_GetUserRating_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (c *ratingServiceClient) DeleteReport(ctx context.Context, in *DeleteReport
 // All implementations must embed UnimplementedRatingServiceServer
 // for forward compatibility
 type RatingServiceServer interface {
-	GetUserRating(context.Context, *GetUserRatingRequest) (*Rating, error)
+	GetUserRating(context.Context, *GetUserRatingRequest) (*GetUserRatingResponse, error)
 	CreateReport(context.Context, *CreateReportRequest) (*Rating, error)
 	UpdateReport(context.Context, *UpdateReportRequest) (*Rating, error)
 	DeleteReport(context.Context, *DeleteReportRequest) (*Empty, error)
@@ -94,7 +94,7 @@ type RatingServiceServer interface {
 type UnimplementedRatingServiceServer struct {
 }
 
-func (UnimplementedRatingServiceServer) GetUserRating(context.Context, *GetUserRatingRequest) (*Rating, error) {
+func (UnimplementedRatingServiceServer) GetUserRating(context.Context, *GetUserRatingRequest) (*GetUserRatingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserRating not implemented")
 }
 func (UnimplementedRatingServiceServer) CreateReport(context.Context, *CreateReportRequest) (*Rating, error) {

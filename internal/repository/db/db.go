@@ -11,6 +11,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -54,24 +55,31 @@ func (r *Repository) GetRatingByID(ctx context.Context, ratingID uint) (*model.R
 	return &rating, nil
 }
 
-func (r *Repository) GetUserRating(ctx context.Context, userUUID uuid.UUID) (*model.Rating, error) {
-	//TODO: Привести к 5.0
+func (r *Repository) GetUserRating(ctx context.Context, userUUID uuid.UUID) (float32, error) {
 	span, _ := opentracing.StartSpanFromContext(ctx, "ratings.GetUserRating.repo")
 	defer span.Finish()
 
 	var ratings []*model.Rating
 	if err := r.conn.Where("UserUUID=?", userUUID).Find(&ratings).Error; err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	var sum uint8
-	var digits []uint8
+	if len(ratings) == 0 {
+		return 0, nil
+	}
+
+	var sum float32
 	for _, rating := range ratings {
-		sum += rating.Rating
-		digits = append(digits, rating.Rating)
+		sum += float32(rating.Rating)
 	}
 
-	return nil, nil
+	averageRating := sum / float32(len(ratings))
+	formattedRating, err := strconv.ParseFloat(fmt.Sprintf("%.1f", averageRating), 32)
+	if err != nil {
+		return 0, err
+	}
+
+	return float32(formattedRating), nil
 }
 
 func (r *Repository) CreateReport(ctx context.Context, rating *model.Rating) (*model.Rating, error) {

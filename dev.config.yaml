@@ -4,13 +4,6 @@ server:
 port: 50080
 serviceName: "ratings"
 
-email:
-  server: "smtp.gmail.com"
-  port: 587
-  user: "unona.tech@gmail.com"
-  pass: "cghmcvxcgkaunvft"
-  admin: "jmurvz@gmail.com"
-
 db:
   host: "localhost"
   port: 5432

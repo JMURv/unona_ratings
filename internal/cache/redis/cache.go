@@ -9,6 +9,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/opentracing/opentracing-go"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -34,6 +35,25 @@ func (c *Cache) Close() {
 	if err := c.cli.Close(); err != nil {
 		log.Println("Failed to close connection to Redis: ", err)
 	}
+}
+
+func (c *Cache) GetRatingValue(ctx context.Context, key string) (float32, error) {
+	span, _ := opentracing.StartSpanFromContext(ctx, "ratings.GetRatingFromCache")
+	defer span.Finish()
+
+	val, err := c.cli.Get(ctx, key).Result()
+	if err == redis.Nil {
+		return 0, errs.ErrNotFoundInCache
+	} else if err != nil {
+		return 0, err
+	}
+
+	v, err := strconv.ParseFloat(val, 32)
+	if err != nil {
+		return 0, err
+	}
+
+	return float32(v), nil
 }
 
 func (c *Cache) Get(ctx context.Context, key string) (*model.Rating, error) {
@@ -64,6 +84,16 @@ func (c *Cache) Set(ctx context.Context, t time.Duration, key string, r *model.R
 	}
 
 	if err = c.cli.Set(ctx, key, bytes, t).Err(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Cache) SetRatingValue(ctx context.Context, t time.Duration, key string, r float32) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "ratings.SetRatingValue")
+	defer span.Finish()
+
+	if err := c.cli.Set(ctx, key, r, t).Err(); err != nil {
 		return err
 	}
 	return nil
